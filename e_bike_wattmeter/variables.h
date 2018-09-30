@@ -30,12 +30,17 @@ private:
 };
 
 measurement lastDistanceMS;
+measurement lastVoltage;
+measurement lastCurrent;
 float actSpeed;
 
 void initVariables() {
 	dprintf(lvl_trace, String(__func__) + " enter\n");
 	lastDistanceMS.setValue(0);
+	lastVoltage.setValue(0);
+	lastCurrent.setValue(0);
 
 	actSpeed = 0;
 	dprintf(lvl_trace, String(__func__) + " leave\n");
 }
+

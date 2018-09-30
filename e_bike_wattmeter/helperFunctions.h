@@ -1,5 +1,6 @@
 #pragma once
 
-unsigned short speedTimeout() {
+unsigned short calcSpeedTimeout() {
 	return (speedThreshold * 1000) / 3.6;
 }
+

@@ -114,7 +114,7 @@
   <ItemGroup>
     <ClInclude Include="debug.h" />
     <ClInclude Include="helperFunctions.h" />
-    <ClInclude Include="inputSimulation.h" />
+    <ClInclude Include="inputs.h" />
     <ClInclude Include="lib\TaskScheduler.h" />
     <ClInclude Include="lib\TaskSchedulerDeclarations.h" />
     <ClInclude Include="variables.h" />

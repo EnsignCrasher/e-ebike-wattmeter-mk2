@@ -36,10 +36,10 @@
     <ClInclude Include="helperFunctions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="inputSimulation.h">
+    <ClInclude Include="variables.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="variables.h">
+    <ClInclude Include="inputs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
