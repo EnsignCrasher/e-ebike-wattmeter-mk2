@@ -3,17 +3,22 @@
  Created:	20.08.2018 20:59:11
  Author:	Administrator
 */
-
+#pragma once
 #define _simulation
 
 
 
-
+#include "Arduino.h"
+#include "debug.h"
 #include "lib/TaskScheduler.h"
 #include "variables.h"
 #include "helperFunctions.h"
-#include "debug.h"
 #include "inputs.h"
+#include "16x4_lcd_display.h"
+
+
+
+
 
 
 void t1Callback();
@@ -30,6 +35,8 @@ Task t_readVoltage(1000, TASK_FOREVER, readVoltage);
 Task t_readCurrent(1000, TASK_FOREVER, readCurrent);
 
 Scheduler runner;
+lcdDisplay display;
+
 
 // the setup function runs once when you press reset or power the board
 void setup() {

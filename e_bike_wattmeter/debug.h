@@ -13,9 +13,10 @@
 	#define	dprintf(x)
 #endif
 
+#ifdef _debug
 boolean dbg_vpf = true; //verbose per function, always print verbose if not explicitly disabled 
 
-#ifdef _debug
+
 enum debuglevel {
 		lvl_none,
 		lvl_trace,

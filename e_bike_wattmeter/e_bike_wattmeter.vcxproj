@@ -112,6 +112,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="16x4_lcd_display.h" />
     <ClInclude Include="debug.h" />
     <ClInclude Include="helperFunctions.h" />
     <ClInclude Include="inputs.h" />
