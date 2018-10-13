@@ -14,7 +14,7 @@
 #include "variables.h"
 #include "helperFunctions.h"
 #include "inputs.h"
-#include "16x4_lcd_display.h"
+#include "20x4_lcd_display.h"
 
 
 
@@ -25,6 +25,8 @@ void t1Callback();
 void hallSensorTriggered();
 void readVoltage();
 void readCurrent();
+void initPages();
+void initLcdValues();
 
 Task t1(2000, 10, &t1Callback);
 
@@ -33,10 +35,12 @@ Task t1(2000, 10, &t1Callback);
 Task simulateHallSensor(wheelCycleTime, TASK_FOREVER, hallSensorTriggered);
 Task t_readVoltage(1000, TASK_FOREVER, readVoltage);
 Task t_readCurrent(1000, TASK_FOREVER, readCurrent);
+Task t_updateLCD(5000, TASK_FOREVER, display.refreshCurrentPage);
 
 Scheduler runner;
 lcdDisplay display;
-
+page *pages[1];
+lcdValue *values[1];
 
 // the setup function runs once when you press reset or power the board
 void setup() {
@@ -51,6 +55,7 @@ void setup() {
 	runner.addTask(t1);
 	runner.addTask(t_readCurrent);
 	runner.addTask(t_readVoltage);
+	runner.addTask(t_updateLCD);
 #ifdef _simulation
 	runner.addTask(simulateHallSensor);
 	simulateHallSensor.enable();
@@ -61,7 +66,34 @@ void setup() {
 
 	Serial.println("added tasks");
 
+	initPages();
+	initLcdValues();
+
+	display.insertPage(pages[0]);
+	display.showPage(pages[0]);
+	t_updateLCD.enable();
+
 	delay(500);
+}
+
+
+void initLcdValues() {
+	values[0] = new lcdValue();
+	values[0]->getValue = lastCurrent.getValue;
+	values[0]->param = "kmh";
+}
+
+void initPages() {
+	pages[0] = new page();
+	pages[0]->lcdval[0] = values[0];
+	pages[0]->lcdval[1] = NULL;
+	pages[0]->lcdval[2] = NULL;
+	pages[0]->lcdval[3] = values[0];
+	pages[0]->lcdval[4] = values[0];
+	pages[0]->lcdval[5] = NULL;
+	pages[0]->lcdval[6] = NULL;
+	pages[0]->lcdval[7] = values[0];
+
 }
 
 // the loop function runs over and over again until power down or reset

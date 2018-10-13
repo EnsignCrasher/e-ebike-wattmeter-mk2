@@ -13,10 +13,10 @@ Param - Val		Param - Val
 Param - Val		Param - Val
 Param - Val		Param - Val
 
-[P][P][][V][V][V][V][][][P][P][][V][V][V][V]
-[P][P][][V][V][V][V][][][P][P][][V][V][V][V]
-[P][P][][V][V][V][V][][][P][P][][V][V][V][V]
-[P][P][][V][V][V][V][][][P][P][][V][V][V][V]
+[P][P][P][][V][V][V][V][][][P][P][P][][V][V][V][V]
+[P][P][P][][V][V][V][V][][][P][P][P][][V][V][V][V]
+[P][P][P][][V][V][V][V][][][P][P][P][][V][V][V][V]
+[P][P][P][][V][V][V][V][][][P][P][P][][V][V][V][V]
 
 */
 
@@ -68,7 +68,7 @@ char* lcdGetParam(int col, int line);
 
 class lcdValue {
 public:
-	char param[2];
+	char* param;
 	float (*getValue)();
 	char* getWholeString();
 private:
@@ -106,7 +106,7 @@ private:
 public:
 	char* getWholeLine(int line);
 
-	lcdValue lcdval[8];
+	lcdValue *lcdval[8];
 	/*
 		This function should initialize all lcdValues with name and function pointer.
 	*/
