@@ -68,11 +68,30 @@ char* lcdGetParam(int col, int line);
 class lcdValue {
 public:
 	char param[2];
-	float (*getValue);
+	float (*getValue)();
 	char* getWholeString();
 private:
 };
 
+/*
+* returns the value as printable string on lcd display (7 chars length)
+*/
+char* lcdValue::getWholeString() {
+	dprintf(lvl_trace, String(__func__) + " enter\n");
+	char string[7];
+	string[0] = param[0];
+	string[1] = param[1];
+	string[2] = ' ';
+	char *buf;
+	buf = (char *)malloc(4); /* make sure you check for != NULL in real code */
+	snprintf(buf, 4, "%d", getValue());
+	for (int i = 0; i < 4; i++)
+		string[i+3] = buf[i];
+	dprintf(lvl_verbose, String(__func__) + " build up string "+String(string)+" \n");
+	delete buf;
+	dprintf(lvl_trace, String(__func__) + " leave\n");
+	return string;
+}
 /*
 
 Arrangement in the LCD display
@@ -120,20 +139,48 @@ public:
 	int insertPage(page *pPage);
 	int deletePage(page *pPage);
 	int showPage(page *pPage);
-	int switchNextPage(page *pPage);
-	int switchPrevPage(page *pPage);
+	int switchNextPage(page *pPage) {
+		if (!curPage->next) return -1;
+		curPage = curPage->next;
+		return 0;
+	};
+		
+	int switchPrevPage(page *pPage) {
+		if (!curPage->prev) return -1;
+		curPage = curPage->next;
+		return 0;
+	};
 	int refreshCurrentPage();
-	bool pageListEmpty();
+	bool pageListEmpty() {
+		return (pages == pages->next && pages == pages->prev);
+	};
 };
 
 // page functions
 
 char* page::getWholeLine(int line) {
 	dprintf(lvl_trace, String(__func__) + " enter\n");
-	dprintf(lvl_err, String(__func__) + " not implemented yet!\n");
-	char temp[COLUMNCOUNT];
+	lcdValue *val1;
+	lcdValue *val2;
+	char strLine[COLUMNCOUNT];
+	char *strVal1 = val1->getWholeString();
+	char *strVal2 = val2->getWholeString();
+	if (!strVal1 && !strVal2)
+	{
+		dprintf(lvl_err, String(__func__) + " one or both of the values strings is null!\n");
+		return NULL;
+	}
+	for (int i = 0; i < 7; i++) {
+		strLine[i] = strVal1[i];
+	}
+	strLine[7] = ' ';
+	strLine[8] = ' ';
+	for (int i = 0; i < 7; i++) {
+		strLine[i+9] = strVal1[i];
+	}
+	dprintf(lvl_verbose, "build line " + String(strLine) + " \n");
 	dprintf(lvl_trace, String(__func__) + " leave\n");
-	return temp;
+	return strLine;
 }
 
 // lcd display functions
