@@ -1,8 +1,9 @@
 #pragma once
 
 #define LINECOUNT 4
-#define COLUMNCOUNT 16
+#define COLUMNCOUNT 20
 
+#include "lib/LiquidCrystal_I2C.h"
 /*
 
 16x4 LCD Display Interface
@@ -131,6 +132,11 @@ public:
 
 class lcdDisplay {
 private:
+	LiquidCrystal_I2C *lcd;
+	void writeChar(char c, int line, int column) {
+		lcd->setCursor(column, line);
+		lcd->print(c);
+	};
 public:
 	char allchars[4][16]; //in memory representation of the chars shown on the lcd display
 	page *pages;
@@ -187,6 +193,9 @@ char* page::getWholeLine(int line) {
 
 void lcdDisplay::init() {
 	dprintf(lvl_trace, String(__func__) + " enter\n");
+	lcd = new LiquidCrystal_I2C(0x27, COLUMNCOUNT, LINECOUNT);
+	lcd->init();
+	lcd->backlight();
 	pages = new page();
 	pages->next = pages;
 	pages->prev = pages;
@@ -293,7 +302,7 @@ int lcdDisplay::refreshCurrentPage() {
 			if (line[a] != allchars[i][a]) {
 				allchars[i][a] = line[a];
 				dprintf(lvl_info, "found non equal char, replace " + String(allchars[i][a]) + " with " + String(line[a]) + " on " + String(i) + "," + String(a) + "\n");
-				dprintf(lvl_err, String(__func__) + " hardware lcd write here, not implemented yet!!\n");
+				writeChar(line[a], i, a);
 			}
 		}
 	}

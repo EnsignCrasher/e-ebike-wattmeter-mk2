@@ -42,7 +42,7 @@
     <ClInclude Include="inputs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="16x4_lcd_display.h">
+    <ClInclude Include="20x4_lcd_display.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
