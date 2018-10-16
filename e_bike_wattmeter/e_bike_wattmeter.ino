@@ -30,7 +30,7 @@ void initLcdValues();
 
 Scheduler runner;
 page *pages[1];
-lcdValue *values[1];
+lcdValue *values[2];
 lcdDisplay display;
 
 void taskfunc_updateDisplay() {
@@ -90,14 +90,14 @@ void initLcdValues() {
 	dprintf(lvl_trace, String(__func__) + " enter\n");
 	values[0] = new lcdValue();
 	values[0]->mp = &lastCurrent;
-	values[0]->param = (char *)malloc(4); /* make sure you check for != NULL in real code */
-	values[0]->param = "kmh";
+	values[0]->param = new char[4]; /* make sure you check for != NULL in real code */
+	values[0]->param = "Amp ";
 	dprintf(lvl_verbose, "set lcdvalue 0, param: " + String(values[0]->param) + " \n")
 
 	values[1] = new lcdValue();
 	values[1]->mp = &lastVoltage;
-	values[1]->param = (char *)malloc(4); /* make sure you check for != NULL in real code */
-	values[1]->param = "km ";
+	values[1]->param = new char[4]; /* make sure you check for != NULL in real code */
+	values[1]->param = "Volt";
 	dprintf(lvl_verbose, "set lcdvalue 1, param: " + String(values[1]->param) + " \n")
 	dprintf(lvl_trace, String(__func__) + " leave\n");
 }	
