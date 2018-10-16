@@ -70,34 +70,56 @@ void setup() {
 
 	Serial.println("added tasks");
 
-	initPages();
 	initLcdValues();
+	initPages();
+	display.init();
+	
+	
 
 	display.insertPage(pages[0]);
 	display.showPage(pages[0]);
 	t_updateLCD.enable();
 
 	delay(500);
+	
 }
 
+float(*fpt)();
 
 void initLcdValues() {
+	dprintf(lvl_trace, String(__func__) + " enter\n");
 	values[0] = new lcdValue();
-	values[0]->getValue = lastCurrent.getValue;
+	values[0]->mp = &lastCurrent;
+	values[0]->param = (char *)malloc(4); /* make sure you check for != NULL in real code */
 	values[0]->param = "kmh";
-}
+	dprintf(lvl_verbose, "set lcdvalue 0, param: " + String(values[0]->param) + " \n")
+
+	values[1] = new lcdValue();
+	values[1]->mp = &lastVoltage;
+	values[1]->param = (char *)malloc(4); /* make sure you check for != NULL in real code */
+	values[1]->param = "km ";
+	dprintf(lvl_verbose, "set lcdvalue 1, param: " + String(values[1]->param) + " \n")
+	dprintf(lvl_trace, String(__func__) + " leave\n");
+}	
 
 void initPages() {
+	dprintf(lvl_trace, String(__func__) + " enter\n");
 	pages[0] = new page();
-	pages[0]->lcdval[0] = values[0];
-	pages[0]->lcdval[1] = NULL;
-	pages[0]->lcdval[2] = NULL;
-	pages[0]->lcdval[3] = values[0];
-	pages[0]->lcdval[4] = values[0];
-	pages[0]->lcdval[5] = NULL;
-	pages[0]->lcdval[6] = NULL;
-	pages[0]->lcdval[7] = values[0];
+	lcdValue *tmpVal = values[0];
+	dprintf(lvl_verbose, "Assign value " + String(tmpVal->param) + "\n");
+	pages[0]->lcdval[0] = values[1];
+	pages[0]->lcdval[1] = values[0];
+	pages[0]->lcdval[2] = values[0];
+	pages[0]->lcdval[3] = values[1];
+	pages[0]->lcdval[4] = values[1];
+	pages[0]->lcdval[5] = values[0];
+	pages[0]->lcdval[6] = values[0];
+	pages[0]->lcdval[7] = values[1];
 
+	for (int i = 0; i < 8; i++)
+		dprintf(lvl_verbose, pages[0]->lcdval[i] ? String(pages[0]->lcdval[i]->param) : "no value\n");
+
+	dprintf(lvl_trace, String(__func__) + " leave\n");
 }
 
 // the loop function runs over and over again until power down or reset
@@ -109,7 +131,7 @@ void loop() {
 		actSpeed = 0;
 	}
 
-	delay(10); //should be fast enough
+	delay(100); //should be fast enough
 }
 
 void t1Callback() {
