@@ -304,10 +304,6 @@ end:
 	return ret;
 }
 
-bool lcdDisplay::pageListEmpty() {
-	return pages == pages->next;
-}
-
 /*
 	return:
 		0: success
