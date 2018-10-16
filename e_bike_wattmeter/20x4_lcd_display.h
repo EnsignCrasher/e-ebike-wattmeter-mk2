@@ -69,29 +69,43 @@ char* lcdGetParam(int col, int line);
 class lcdValue {
 public:
 	char* param;
-	float (*getValue)();
-	char* getWholeString();
+	measurement *mp;
+	char* getWholeString(char string[]);
 private:
 };
 
 /*
 * returns the value as printable string on lcd display (7 chars length)
 */
-char* lcdValue::getWholeString() {
+char* lcdValue::getWholeString(char string[]) {
 	dprintf(lvl_trace, String(__func__) + " enter\n");
-	char string[7];
+	dprintf(lvl_info, "lcdValue has param: " + String(param) + " .\n");
+	//char string[8];
+#ifdef _debug
+	//if everything works we shouldn't see a 'd'
+	for (int i = 0; i < (COLUMNCOUNT / 2 - 1); i++)
+		string[i] = 'd';
+	string[(COLUMNCOUNT / 2)-1] = '\0';
+#endif
+	//temp = &string;
 	string[0] = param[0];
 	string[1] = param[1];
-	string[2] = ' ';
-	char *buf;
-	buf = (char *)malloc(4); /* make sure you check for != NULL in real code */
-	snprintf(buf, 4, "%d", getValue());
-	for (int i = 0; i < 4; i++)
-		string[i+3] = buf[i];
+	string[2] = param[2];
+	string[3] = ' ';
+
+	float val = mp->getValue();
+	while (val > 999) {
+		dprintf(lvl_err, String(__func__) + "unhandled overflow, value too large!!");
+		val = val / 10;
+	}
+	char result[10]; 
+	dtostrf(val, 5, 2, result);
+	for (int i = 0; i < 5; i++)
+		string[i+4] = result[i];
 	dprintf(lvl_verbose, String(__func__) + " build up string "+String(string)+" \n");
-	delete buf;
+	
 	dprintf(lvl_trace, String(__func__) + " leave\n");
-	return string;
+	return NULL;
 }
 /*
 
@@ -104,7 +118,7 @@ lcdval[6] - lcdval[7]
 class page {
 private:
 public:
-	char* getWholeLine(int line);
+	char* getWholeLine(int line, char strLine[]);
 
 	lcdValue *lcdval[8];
 	/*
@@ -123,8 +137,55 @@ public:
 };
 
 
+// page functions
 
+char* page::getWholeLine(int line, char strLine[]) {
+	dprintf(lvl_trace, String(__func__) + " enter\n");
+	dprintf(lvl_verbose, "get val" +String(line*2)+" and val" + String(line*2+1) + "\n")
+	lcdValue *val1 = lcdval[line * 2];
+	lcdValue *val2 = lcdval[line * 2 + 1];
+	char strVal1[(COLUMNCOUNT / 2)-1];
+	char strVal2[(COLUMNCOUNT / 2)-1];
 
+	//char strLine[COLUMNCOUNT];
+
+#ifdef _debug
+	//if everything works, all the A's should be overwritten
+	for (int i = 0; i < COLUMNCOUNT; i++)
+		strLine[i] = 'A';
+#endif
+	
+
+	if (val1) {
+		val1->getWholeString(strVal1);
+		dprintf(lvl_verbose, ": got strVal1: " + String(strVal1) + "\n");
+	}
+	if (val2) {
+		val2->getWholeString(strVal2);
+		dprintf(lvl_verbose, " got strVal2 " + String(strVal2) + "\n");		
+	}
+
+	
+	for (int i = 0; i < (COLUMNCOUNT/2)-1; i++) {
+		if (val1)
+			strLine[i] = strVal1[i];
+		else
+			strLine[i] = 'a';
+	}
+	strLine[(COLUMNCOUNT / 2)-1] = 'b';
+	strLine[(COLUMNCOUNT / 2)] = 'b';
+	for (int i = 0; i < (COLUMNCOUNT / 2)-1; i++) {
+		if (val2)
+			strLine[i + (COLUMNCOUNT / 2) + 1] = strVal2[i]; //believe me  it is the right offset
+		else
+			strLine[i + (COLUMNCOUNT / 2) + 1] = 'c';
+	}
+	strLine[COLUMNCOUNT] = '\0';
+
+	dprintf(lvl_verbose, "build line " + String(strLine) + " \n");
+	dprintf(lvl_trace, String(__func__) + " leave\n");
+	return NULL;
+}
 
 /*
 	On the highest level we have the LCD display with several pages, menues and so on
@@ -134,11 +195,11 @@ class lcdDisplay {
 private:
 	LiquidCrystal_I2C *lcd;
 	void writeChar(char c, int line, int column) {
-		lcd->setCursor(column, line);
+		lcd->setCursor((uint8_t)column, (uint8_t)line);
 		lcd->print(c);
 	};
 public:
-	char allchars[4][16]; //in memory representation of the chars shown on the lcd display
+	char allchars[LINECOUNT][COLUMNCOUNT]; //in memory representation of the chars shown on the lcd display
 	page *pages;
 	page *curPage;
 	void init();
@@ -150,7 +211,7 @@ public:
 		curPage = curPage->next;
 		return 0;
 	};
-		
+
 	int switchPrevPage(page *pPage) {
 		if (!curPage->prev) return -1;
 		curPage = curPage->next;
@@ -162,33 +223,6 @@ public:
 	};
 };
 
-// page functions
-
-char* page::getWholeLine(int line) {
-	dprintf(lvl_trace, String(__func__) + " enter\n");
-	lcdValue *val1;
-	lcdValue *val2;
-	char strLine[COLUMNCOUNT];
-	char *strVal1 = val1->getWholeString();
-	char *strVal2 = val2->getWholeString();
-	if (!strVal1 && !strVal2)
-	{
-		dprintf(lvl_err, String(__func__) + " one or both of the values strings is null!\n");
-		return NULL;
-	}
-	for (int i = 0; i < 7; i++) {
-		strLine[i] = strVal1[i];
-	}
-	strLine[7] = ' ';
-	strLine[8] = ' ';
-	for (int i = 0; i < 7; i++) {
-		strLine[i+9] = strVal1[i];
-	}
-	dprintf(lvl_verbose, "build line " + String(strLine) + " \n");
-	dprintf(lvl_trace, String(__func__) + " leave\n");
-	return strLine;
-}
-
 // lcd display functions
 
 void lcdDisplay::init() {
@@ -199,6 +233,11 @@ void lcdDisplay::init() {
 	pages = new page();
 	pages->next = pages;
 	pages->prev = pages;
+	for (int i = 0; i < LINECOUNT; i++) {
+		for (int a = 0; a < COLUMNCOUNT; a++) {
+			allchars[i][a] = 'x';
+		}
+	}
 	dprintf(lvl_trace, String(__func__) + " leave\n");
 }
 
@@ -295,13 +334,15 @@ int lcdDisplay::refreshCurrentPage() {
 	for (int i = 0;
 		i < LINECOUNT;
 		i++) {
-		char *line = curPage->getWholeLine(i);
+		char line[COLUMNCOUNT+1];
+		curPage->getWholeLine(i, line);
+		dprintf(lvl_verbose, String(__func__) + ": got line " + String(line) +"\n");
 		for (int a = 0;
 			a < COLUMNCOUNT;
 			a++) {
 			if (line[a] != allchars[i][a]) {
-				allchars[i][a] = line[a];
 				dprintf(lvl_info, "found non equal char, replace " + String(allchars[i][a]) + " with " + String(line[a]) + " on " + String(i) + "," + String(a) + "\n");
+				allchars[i][a] = line[a];
 				writeChar(line[a], i, a);
 			}
 		}

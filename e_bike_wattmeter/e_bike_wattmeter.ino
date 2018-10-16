@@ -28,6 +28,14 @@ void readCurrent();
 void initPages();
 void initLcdValues();
 
+Scheduler runner;
+page *pages[1];
+lcdValue *values[1];
+lcdDisplay display;
+
+void taskfunc_updateDisplay() {
+	display.refreshCurrentPage();
+}
 Task t1(2000, 10, &t1Callback);
 
 #define wheelCycleTime 267 //ca. 28kmh
@@ -35,12 +43,8 @@ Task t1(2000, 10, &t1Callback);
 Task simulateHallSensor(wheelCycleTime, TASK_FOREVER, hallSensorTriggered);
 Task t_readVoltage(1000, TASK_FOREVER, readVoltage);
 Task t_readCurrent(1000, TASK_FOREVER, readCurrent);
-Task t_updateLCD(5000, TASK_FOREVER, display.refreshCurrentPage);
+Task t_updateLCD(5000, TASK_FOREVER, taskfunc_updateDisplay);
 
-Scheduler runner;
-lcdDisplay display;
-page *pages[1];
-lcdValue *values[1];
 
 // the setup function runs once when you press reset or power the board
 void setup() {

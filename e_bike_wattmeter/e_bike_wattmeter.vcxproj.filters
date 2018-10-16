@@ -45,5 +45,13 @@
     <ClInclude Include="20x4_lcd_display.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="lib\LiquidCrystal_I2C.h">
+      <Filter>lib</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="lib\LiquidCrystal_I2C.cpp">
+      <Filter>lib</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
